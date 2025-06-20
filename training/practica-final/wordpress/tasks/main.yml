@@ -1,6 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for wordpress
+
 - name: Instalar WordPress
   hosts: webserver
   become: yes
@@ -42,7 +43,7 @@
 
     - name: Configurar Nginx para WordPress
       ansible.builtin.template:
-        src: wordpress/templates/nginx_wordpress.conf.j2
+        src: ../templates/nginx_wordpress.conf.j2
         dest: /etc/nginx/sites-available/wordpress.conf
         mode: '0644'
       notify:

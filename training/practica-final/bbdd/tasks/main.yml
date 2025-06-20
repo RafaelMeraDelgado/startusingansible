@@ -1,0 +1,26 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for bbdd
+- name: Instalar base de datos para WordPress
+  hosts: database
+  become: yes
+  tasks:
+    - name: Instalar MariaDB
+      ansible.builtin.package:
+        name: mariadb-server
+        state: present
+
+    - name: Asegurar la instalación de MariaDB
+      ansible.builtin.command: mysql_secure_installation --use-default
+
+    - name: Crear base de datos para WordPress
+      ansible.builtin.mysql_db:
+        name: wordpress
+        state: present
+
+    - name: Crear usuario de base de datos para WordPress
+      ansible.builtin.mysql_user:
+        name: "{{ wordpress_db_user }}"
+        password: "{{ wordpress_db_password }}"
+        priv: 'wordpress.*:ALL'
+        state: present

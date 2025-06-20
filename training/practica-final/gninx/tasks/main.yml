@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for gninx
+- name: Instalar gnix para hacer de balanceador de carga
+  hosts: loadbalancer
+  become: yes
+  tasks:
+    - name: Instalar Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Configurar Nginx como balanceador de carga
+      ansible.builtin.template:
+        src: wordpress/templates/nginx_load_balancer.conf.j2
+        dest: /etc/nginx/conf.d/load_balancer.conf
+        mode: '0644'
+      notify:
+        - Reiniciar Nginx 

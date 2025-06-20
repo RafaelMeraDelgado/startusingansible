@@ -1,0 +1,43 @@
+- name: Despliegue de un stack LAMP
+  hosts: all
+  become: yes
+  roles: 
+    - role: wordpress
+    - role: bbdd
+    - role: gninx
+  tasks:
+    - name: Asegurarse que no haya ningun servidor web en el puerto 80 y 443
+      ansible.builtin.fail:
+        msg: "Hay un servidor web corriendo en el puerto {{ item }}"
+      when: ansible_facts['ports'][item] is defined
+      loop:
+        - 80
+        - 443
+      ignore_errors: true
+
+    - name: Si esta ocupado el puerto 80 y 443, detener el servicio
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+      when: ansible_facts['ports'][item] is defined
+      loop:
+        - apache2
+        - nginx
+      ignore_errors: true
+
+    - name: asegurarse que no haya una base de datos corriendo
+      ansible.builtin.fail:
+        msg: "Hay una base de datos corriendo"
+      when: ansible_facts['services']['mysql'] is defined or ansible_facts['services']['mariadb'] is defined
+      ignore_errors: true
+    
+    - name: Parar todas las bases de datos
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+      when: ansible_facts['services'][item] is defined
+      loop:
+        - mysql
+        - mariadb
+      ignore_errors: true
+
